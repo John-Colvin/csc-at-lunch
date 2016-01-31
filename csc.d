@@ -1,24 +1,46 @@
 import std.stdio, std.getopt;
 
-/// rdmd csc.d -x 0.1 -r 4 -n 4 | god -t f8 -An -v -w8
-void main(string[] args)
+enum help =`
+Logistic map calculator
+=======================
+Prints the first n applications of the logistic map to a file.
+
+Formula: Xₙ = r Xₙ₋₁ (1 - Xₙ₋₁)
+
+Options:
+--initial=<> or -x<> : the initial value of X, i.e. X₀
+--ratio=<> or -r<>   : the scaling factor r
+--nSteps=<> or -n<>  : the number of iterations to perform
+--output=<> or -o<>  : output file name
+
+The output is in native-endian IEEE754 double-precision floats.
+The output includes the initial value and therefore is 8 (nSteps + 1) bytes long.
+`;
+
+int main(string[] args)
 {
     double r, x;
     ulong n;
     string outputFileName;
 
     GetoptResult rslt;
-    try {
+    try
+    {
         rslt = getopt(args,
             config.required, "initial|x", &x,
             config.required, "r|r",       &r,
             config.required, "nSteps|n",  &n,
             config.required, "output|o",  &outputFileName);
-        if (rslt.helpWanted) throw new GetOptException("");
     }
-    catch(GetOptException) {
-        defaultGetoptPrinter("Logistic map calculator\n Options:\n",
-            rslt.options);
+    catch (GetOptException)
+    {
+        stderr.writeln(help);
+        return 1;
+    }
+    if (rslt.helpWanted)
+    {
+        stderr.writeln(help);
+        return 0;
     }
 
     auto outputFile = File(outputFileName, "wb");
@@ -27,7 +49,7 @@ void main(string[] args)
     size_t idx = 0;
 
     outputFile.rawWrite((&x)[0..1]);
-    foreach(_; 0 .. n)
+    foreach (_; 0 .. n)
     {
         x = r * x * (1 - x);
         buff[idx++] = x;
@@ -39,4 +61,6 @@ void main(string[] args)
     }
     if (idx != 0)
         outputFile.rawWrite(buff[0 .. idx]);
+
+    return 0;
 }

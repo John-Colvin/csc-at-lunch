@@ -43,15 +43,18 @@ void getOptions(string[] args, out double r, out double x, out ulong nSteps,
 Logistic map calculator
 =======================
 Prints the first n applications of the logistic map to a file.
-The output is in native-endian IEEE754 double-precision floats.
 
-Formula: xₙ = r xₙ₋₁ (1 - xₙ₋₁)
+Formula: Xₙ = r Xₙ₋₁ (1 - Xₙ₋₁)
 
 Options:
---initial=<> or -x<> : the initial value of x, i.e. x₀
+--initial=<> or -x<> : the initial value of X, i.e. X₀
 --ratio=<> or -r<>   : the scaling factor r
 --nSteps=<> or -n<>  : the number of iterations to perform
---output=<> or -o<>  : output file name`;
+--output=<> or -o<>  : output file name
+
+The output is in native-endian IEEE754 double-precision floats.
+The output includes the initial value and therefore is 8 (nSteps + 1) bytes long.
+`;
 
     GetoptResult rslt;
     try
